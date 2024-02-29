@@ -23,6 +23,7 @@ enum PlayResult {
   PLACEMENT_CONFLICT,
   GAME_FINISHED,
   GAME_NOT_FINISHED,
+  NO_OPPONENT,
 }
 
 /**
@@ -59,10 +60,13 @@ class Game implements Disposer {
     if (this.finished) {
       return PlayResult.GAME_ALREADY_FINISHED;
     }
-
+    if (!this.opponent.isPresent()){
+        return PlayResult.NO_OPPONENT;
+    }
     if (this.next != player) {
       return PlayResult.NOT_YOUR_TURN;
     }
+
 
     OutputStream stream;
     if (this.next == Player.HOST) {
