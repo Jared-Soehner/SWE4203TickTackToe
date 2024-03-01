@@ -23,6 +23,7 @@ enum PlayResult {
   PLACEMENT_CONFLICT,
   GAME_FINISHED,
   GAME_NOT_FINISHED,
+  NO_OPPONENT;
 }
 
 /**
@@ -66,7 +67,7 @@ class Game implements Disposer {
 
     OutputStream stream;
     if (this.next == Player.HOST) {
-      this.next = Player.OPPONENT;
+      this.next = Player.HOST;
       stream = Utils.getOrThrow(this.opponent, "NO_OPPONENT");
     } else {
       this.next = Player.HOST;
