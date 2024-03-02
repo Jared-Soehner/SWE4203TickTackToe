@@ -102,6 +102,7 @@ class GameManager implements Disposer {
     if (result == PlayResult.GAME_FINISHED) {
       this.games.remove(game);
       response.put("gameOver", true);
+      response.put("", true);
     } else {
       response.put("gameOver", false);
     }

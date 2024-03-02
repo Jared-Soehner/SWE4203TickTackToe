@@ -39,10 +39,14 @@ let resetGameButton
  * @type {{ player: 'HOST' | 'OPPONENT', gameCode: string, eventSource: EventSource }}
  */
 let gameState
+/**
+ * @type {boolean | null}
+ * This variable represents whether the host won the game (true), the opponent won the game (false), or if there's no winner yet (null).
+ */
+let hostWon;
 
 let gameOver = false;
 let hostTurn = true;
-
 let boxCount = 0;
 
 
@@ -80,17 +84,17 @@ const setTurnDisp = () => {
 
 /**
  * 
- * @param {"HOST" | "OPPONENT" | "NONE" | undefined} winner 
+ * @param {string | null} winner
  */
 const setWinnerDisp = (winner) => {
   $("#game-stat-disp").removeClass("invisible").addClass("visible");
-
+  console.log(`${winner} ${gameState ? gameState.player : ''}`);
   if ((winner === "HOST" && gameState.player === "HOST") || (winner === "OPPONENT" && gameState.player === "OPPONENT")) {
     gameStatusDisplay.textContent = "You Won!";
   } else if ((winner === "HOST" && gameState.player === "OPPONENT") || (winner === "OPPONENT" && gameState.player === "HOST")) {
     gameStatusDisplay.textContent = "Better Luck Next Time!";
   } else {
-    gameStatusDisplay.textContent = "No Winner for this Game.";
+    gameStatusDisplay.textContent = "No Winners for this Game.";
   }
 }
 
@@ -115,7 +119,7 @@ const createSource = (url) => {
 
   source.onmessage = (event) => {
     /**
-     * @type {{ location: [number, number], gameOver: boolean, winner: "HOST" | "OPPONENT" | "NONE" }}
+     * @type {{ location: [number, number], gameOver: boolean, hostWon: boolean }}
      */
     const data = JSON.parse(event.data);
     console.log(data);
@@ -128,7 +132,14 @@ const createSource = (url) => {
     }
 
     if (data.gameOver === true) {
-      setWinnerDisp(data.winner);
+      let winner = "HOST";
+      if (data.hostWon === true) {
+        winner = "HOST";
+      } else if (data.hostWon === false) {
+        winner = "OPPONENT";
+      }
+      winner = "HOST";
+      setWinnerDisp(winner);
     }
   }
 
@@ -213,8 +224,14 @@ const makePlay = async (x, y) => {
         placeMarker(x, y, "O");
       }
 
-      if (data.gameOver) {
-        setWinnerDisp(data.winner);
+      if (data.gameOver === true) {
+        let winner = "HOST";
+        if (data.hostWon === true) {
+          winner = "HOST";
+        } else if (data.hostWon === false) {
+          winner = "OPPONENT";
+        }
+        setWinnerDisp(winner);
       }
     }
   );
