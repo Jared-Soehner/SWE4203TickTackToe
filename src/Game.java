@@ -37,6 +37,7 @@ class Game implements Disposer {
   private Optional<OutputStream> opponent = Optional.empty();
   private Player next = Player.HOST;
   private boolean finished = false;
+  private Boolean hostWon; //1 for yes 0 for no
   private int count = 0;
 
   Game() {
@@ -91,10 +92,11 @@ class Game implements Disposer {
 
     Game.log.info(player.toString() + " played " + this.game[x][y].toString() + " at " + x + ", " + y);
     String message = String.format(
-      "data: { \"location\": [%d, %d], \"gameOver\": %s }\n\n", 
+      "data: { \"location\": [%d, %d], \"gameOver\": %s, \"hostWon\": %s }\n\n",
       x,
       y,
-      this.finished
+      this.finished,
+      this.hostWon
     );
 
     try {
@@ -153,9 +155,16 @@ class Game implements Disposer {
     this.opponent.ifPresent(Utils::tryToClose);
   }
 
-  private void checkFinished() {
-    this.finished = this.checkWon(State.X) || this.checkWon(State.O) || this.count == 9;
-  }
+private void checkFinished() {
+    if (this.checkWon(State.X)) {
+        this.hostWon = true; // Host won
+    } else if (this.checkWon(State.O)) {
+        this.hostWon = false; // Opponent won
+    } else {
+        this.hostWon = null; // No winner yet
+    }
+    this.finished = this.hostWon != null || this.count == 9;
+}
 
   private boolean checkWon(State state) {
     for (int i = 0; i < 3; i++) {
